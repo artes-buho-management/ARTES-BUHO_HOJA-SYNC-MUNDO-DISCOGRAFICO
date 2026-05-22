@@ -1,0 +1,17 @@
+{
+  "scriptId": "REPLACE_WITH_ID",
+  "rootDir": "",
+  "parentId": "REPLACE_WITH_SHEET_ID",
+  "scriptExtensions": [
+    ".js",
+    ".gs"
+  ],
+  "htmlExtensions": [
+    ".html"
+  ],
+  "jsonExtensions": [
+    ".json"
+  ],
+  "filePushOrder": [],
+  "skipSubdirectories": false
+}

@@ -1,0 +1,224 @@
+﻿<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top" />
+    <meta charset="utf-8" />
+    <style>
+      :root {
+        --bg1: #070b1c;
+        --bg2: #0e1738;
+        --line: #1ef2ff;
+        --line2: #ffcc00;
+        --accent: #46ff9b;
+        --danger: #ff5f7a;
+        --text: #eaf4ff;
+      }
+      body {
+        margin: 0;
+        padding: 0;
+        font-family: 'Segoe UI', Tahoma, sans-serif;
+        background: radial-gradient(circle at 20% 15%, #14265f 0%, var(--bg1) 45%, #030611 100%);
+        color: var(--text);
+      }
+      .wrap {
+        padding: 14px;
+      }
+      .panel {
+        border: 1px solid rgba(30, 242, 255, 0.45);
+        border-radius: 12px;
+        background: linear-gradient(180deg, rgba(18, 30, 73, 0.85), rgba(7, 11, 28, 0.92));
+        box-shadow: 0 0 20px rgba(30, 242, 255, 0.2), inset 0 0 15px rgba(30, 242, 255, 0.08);
+        padding: 14px;
+      }
+      .title {
+        font-size: 18px;
+        font-weight: 700;
+        letter-spacing: 0.8px;
+        color: #9de7ff;
+        margin-bottom: 4px;
+      }
+      .sub {
+        font-size: 12px;
+        opacity: 0.9;
+        margin-bottom: 12px;
+      }
+      .badge {
+        display: inline-block;
+        border: 1px solid rgba(255, 204, 0, 0.5);
+        color: #ffe599;
+        border-radius: 999px;
+        padding: 4px 10px;
+        font-size: 11px;
+        margin-bottom: 10px;
+      }
+      .progress {
+        height: 22px;
+        border-radius: 999px;
+        border: 1px solid rgba(30, 242, 255, 0.4);
+        overflow: hidden;
+        background: rgba(0, 0, 0, 0.35);
+      }
+      .bar {
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(90deg, var(--line2), var(--line));
+        box-shadow: 0 0 10px rgba(30, 242, 255, 0.5);
+        transition: width 0.35s ease;
+      }
+      .percent {
+        margin-top: 8px;
+        font-size: 28px;
+        font-weight: 800;
+      }
+      .msg {
+        margin-top: 6px;
+        font-size: 13px;
+        min-height: 34px;
+      }
+      .meta {
+        margin-top: 10px;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 6px;
+        font-size: 12px;
+      }
+      .meta div {
+        border: 1px solid rgba(70, 255, 155, 0.25);
+        border-radius: 8px;
+        padding: 6px;
+        background: rgba(8, 18, 40, 0.7);
+      }
+      .log {
+        margin-top: 12px;
+        border: 1px solid rgba(30, 242, 255, 0.25);
+        border-radius: 8px;
+        background: rgba(0, 0, 0, 0.4);
+        padding: 8px;
+        height: 170px;
+        overflow: auto;
+        font-size: 11px;
+        line-height: 1.35;
+        white-space: pre-wrap;
+      }
+      .ok { color: var(--accent); font-weight: 700; }
+      .error { color: var(--danger); font-weight: 700; }
+      .running { color: #9de7ff; font-weight: 700; }
+      .actions {
+        margin-top: 12px;
+        display: flex;
+        gap: 8px;
+      }
+      button {
+        border: none;
+        border-radius: 8px;
+        padding: 10px 12px;
+        font-size: 12px;
+        font-weight: 700;
+        cursor: pointer;
+      }
+      .btn-close { background: #ffcc00; color: #111; }
+      .btn-retry { background: #1ef2ff; color: #001018; display: none; }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="panel">
+        <div class="title" id="title">IA CRM</div>
+        <div class="sub" id="sub">Inicializando...</div>
+        <div class="badge" id="badge">RUBEN COTON · ARTES BUHO</div>
+
+        <div class="progress"><div id="bar" class="bar"></div></div>
+        <div id="percent" class="percent">0%</div>
+        <div id="msg" class="msg running">Arrancando proceso...</div>
+
+        <div class="meta">
+          <div id="metaRows">Filas: 0 / 0</div>
+          <div id="metaStatus">Estado: RUNNING</div>
+          <div id="metaAudit">BIEN: 0 · CORREGIDO: 0 · MAL: 0</div>
+          <div id="metaAuto">COMPLETADAS: 0 · IA NO ENCUENTRA: 0</div>
+        </div>
+
+        <div id="log" class="log"></div>
+
+        <div class="actions">
+          <button class="btn-close" onclick="google.script.host.close()">Cerrar</button>
+          <button id="retryBtn" class="btn-retry" onclick="startProcess()">Reintentar</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const MODE = '<?= mode ?>';
+      const APP_NAME = '<?= appName ?>';
+      const DEV_NAME = '<?= devName ?>';
+      const COMPANY_NAME = '<?= companyName ?>';
+
+      let timer = null;
+
+      function setText(id, txt) {
+        document.getElementById(id).textContent = txt;
+      }
+
+      function render(state) {
+        const s = state || {};
+        const p = Math.max(0, Math.min(100, Number(s.progress || 0)));
+
+        document.getElementById('bar').style.width = p + '%';
+        setText('percent', p + '%');
+        setText('metaRows', `Filas: ${Number(s.processedRows || 0)} / ${Number(s.totalRows || 0)}`);
+        setText('metaStatus', `Estado: ${String(s.status || 'IDLE')}`);
+        setText('metaAudit', `BIEN: ${Number(s.totalBien || 0)} · CORREGIDO: ${Number(s.totalCorregido || 0)} · MAL: ${Number(s.totalMal || 0)}`);
+        setText('metaAuto', `COMPLETADAS: ${Number(s.totalAutocompleteFilled || 0)} · IA NO ENCUENTRA: ${Number(s.totalAutocompleteNoFind || 0)}`);
+
+        const title = MODE === 'AUTOCOMPLETE' ? 'AUTOCOMPLETADO IA DE CELDAS' : 'AUDITORIA IA DE CONTACTOS';
+        setText('title', title);
+        setText('sub', `${APP_NAME} · ${MODE === 'AUTOCOMPLETE' ? 'Completando celdas vacias' : 'Verificando emails con web scraping'}`);
+        setText('badge', `${DEV_NAME} · ${COMPANY_NAME}`);
+
+        const msg = s.message || 'Sin mensaje.';
+        const msgEl = document.getElementById('msg');
+        msgEl.textContent = msg;
+        msgEl.className = 'msg ' + (s.status === 'DONE' ? 'ok' : s.status === 'ERROR' ? 'error' : 'running');
+
+        const log = Array.isArray(s.activity) ? s.activity.join('\n') : '';
+        setText('log', log || 'Sin actividad todavia.');
+        const logEl = document.getElementById('log');
+        logEl.scrollTop = logEl.scrollHeight;
+
+        const retry = document.getElementById('retryBtn');
+        retry.style.display = s.status === 'ERROR' ? 'inline-block' : 'none';
+
+        if (s.status === 'RUNNING') {
+          if (!timer) timer = setInterval(refreshState, 1200);
+        } else {
+          if (timer) {
+            clearInterval(timer);
+            timer = null;
+          }
+        }
+      }
+
+      function showError(err) {
+        const text = err && err.message ? err.message : String(err || 'Error desconocido');
+        render({ status: 'ERROR', message: text, progress: 0, activity: [text] });
+      }
+
+      function refreshState() {
+        google.script.run
+          .withSuccessHandler(render)
+          .withFailureHandler(showError)
+          .crmPanelGetEstado();
+      }
+
+      function startProcess() {
+        render({ status: 'RUNNING', message: 'Lanzando proceso IA...', progress: 1, activity: ['Inicializando...'] });
+        google.script.run
+          .withSuccessHandler(render)
+          .withFailureHandler(showError)
+          .crmPanelIniciarDesdeVentana(MODE);
+      }
+
+      window.addEventListener('load', startProcess);
+    </script>
+  </body>
+</html>

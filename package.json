@@ -1,0 +1,36 @@
+{
+  "name": "hoja-sync-1vi74m",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Proyecto Apps Script vinculado a Google Sheet con sincronizacion GitHub",
+  "type": "commonjs",
+  "scripts": {
+    "gas:create": "powershell -NoProfile -ExecutionPolicy Bypass -File .\\gas_cmd.ps1 -Action create -SheetId 1VI74M-73XTIF1Cu9aQTPiQa9nHHcdAa_Xr6xzL49Lr4 -Title \"Hoja Sync 1VI74M\"",
+    "gas:login": "powershell -NoProfile -ExecutionPolicy Bypass -File .\\gas_cmd.ps1 -Action login",
+    "gas:status": "powershell -NoProfile -ExecutionPolicy Bypass -File .\\gas_cmd.ps1 -Action status",
+    "gas:pull": "powershell -NoProfile -ExecutionPolicy Bypass -File .\\gas_cmd.ps1 -Action pull",
+    "gas:push": "powershell -NoProfile -ExecutionPolicy Bypass -File .\\gas_cmd.ps1 -Action push",
+    "gas:open": "powershell -NoProfile -ExecutionPolicy Bypass -File .\\gas_cmd.ps1 -Action open",
+    "gas:watch": "powershell -NoProfile -ExecutionPolicy Bypass -File .\\gas_cmd.ps1 -Action watch",
+    "gas:watch:runner": "powershell -NoProfile -ExecutionPolicy Bypass -File .\\run-gas-watch.ps1",
+    "gas:watch:install-task": "powershell -NoProfile -ExecutionPolicy Bypass -File .\\install-watch-task.ps1",
+    "gas:inspect": "powershell -NoProfile -ExecutionPolicy Bypass -File .\\gas_cmd.ps1 -Action run -FunctionName codexInspeccionarHojaVinculada",
+    "inspect:sheet": "node .\\tools\\inspect_sheet_via_sa.js --noSubject",
+    "crm:optimize": "node .\\tools\\optimize_crm_sheet.js",
+    "crm:email-visual": "node .\\tools\\apply_email_visual_status.js",
+    "crm:artebook": "node .\\tools\\apply_crm_artebook_updates.js",
+    "crm:autocomplete:sa": "node .\\tools\\run_autocomplete_via_sa.js",
+    "crm:cleanup:report": "node .\\tools\\generate_mal_cleanup_report.js",
+    "crm:cleanup:sheet": "node .\\tools\\generate_mal_cleanup_report.js --publishSheet true --limit 1200",
+    "crm:remote:all": "C:\\Progra~1\\nodejs\\node.exe .\\tools\\remote_audit_orchestrator.js",
+    "publish:all": "powershell -NoProfile -ExecutionPolicy Bypass -File .\\publish_sync.ps1",
+    "sync:status": "powershell -NoProfile -ExecutionPolicy Bypass -File ..\\..\\03_SCRIPTS_UTILIDAD\\sync_git_gas.ps1 -Action status -RepoPath \"%cd%\"",
+    "sync:down": "powershell -NoProfile -ExecutionPolicy Bypass -File ..\\..\\03_SCRIPTS_UTILIDAD\\sync_git_gas.ps1 -Action down -RepoPath \"%cd%\" -AllowDirty",
+    "sync:up": "powershell -NoProfile -ExecutionPolicy Bypass -File ..\\..\\03_SCRIPTS_UTILIDAD\\sync_git_gas.ps1 -Action up -RepoPath \"%cd%\"",
+    "sync:audit": "powershell -NoProfile -ExecutionPolicy Bypass -File ..\\..\\03_SCRIPTS_UTILIDAD\\sync_git_gas.ps1 -Action audit -RepoPath \"%cd%\"",
+    "sync:cycle": "powershell -NoProfile -ExecutionPolicy Bypass -File .\\sync-cycle.ps1"
+  },
+  "devDependencies": {
+    "@google/clasp": "^3.2.0"
+  }
+}
